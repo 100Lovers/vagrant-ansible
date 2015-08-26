@@ -1,0 +1,6 @@
+# Fix iptables
+- name: Insert iptables rule
+  sudo: yes
+  lineinfile: dest=/etc/sysconfig/iptables state=present regexp="{{ http_port }}"
+    insertafter="^:OUTPUT " line="-A INPUT -p tcp --dport {{ http_port }} -j ACCEPT"
+  notify: Restart iptables

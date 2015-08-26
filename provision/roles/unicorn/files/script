@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+#	Startup script for rails app
+
+. /etc/rc.d/init.d/functions
+
+PROG_NAME=rails_app
+USER=vagrant
+APP_ROOT=/home/vagrant/rails_app/current
+RAILS_ENV=production
+PID_FILE=$APP_ROOT/tmp/pids/unicorn.pid
+CONFIG_FILE=$APP_ROOT/config/unicorn.rb
+CMD="/home/vagrant/.rbenv/shims/unicorn_rails"
+ARGS="-c $CONFIG_FILE -D -E $RAILS_ENV"
+
+export PATH=/home/vagrant/.rbenv/shims:$PATH
+cd $APP_ROOT || exit 1
+
+case $1 in
+	start)
+		daemon --user=$USER --pidfile=$PID_FILE $CMD $ARGS
+		;;
+	stop)
+		killproc -p $PID_FILE $PROG_NAME -QUIT
+		;;
+	restart)
+		killproc -p $PID_FILE $PROG_NAME -USR2
+		;;
+	*)
+		echo >&2 "Usage: $0 <start|stop|restart>"
+		exit 1
+		;;
+esac

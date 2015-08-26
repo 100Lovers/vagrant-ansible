@@ -1,0 +1,40 @@
+# Install MySQL
+- name: Install MySQL
+  sudo: yes
+  yum: name={{ item }} state=installed enablerepo=remi
+  with_items:
+    - mysql-server
+    - mysql-devel
+    - MySQL-python
+
+- name: Initialize MySQL 
+  sudo: yes
+  command: mysql_install_db
+
+- name: Auto running MySQL
+  sudo: yes
+  service: name=mysqld state=running enabled=yes
+
+- name: Copy mycnf to /etc/my.cnf
+  sudo: yes
+  copy: src=mycnf dest=/etc/my.cnf owner=root group=root mode=0600
+  notify: Restart MySQL
+
+- name: Set up password for the initial MySQL account
+  mysql_user: name=root host={{item}} password=password
+  with_items:
+    - 127.0.0.1
+    - localhost
+  notify: Restart MySQL
+
+- name: Copy .mycnf to {{home_dir}}/.my.cnf
+  sudo: yes
+  copy: src=.mycnf dest={{home_dir}}/.my.cnf owner={{owner}} group={{group}} mode=0600
+
+- name: Remove the test database
+  mysql_db: login_host=localhost login_user=root login_password=password name=test encoding=utf8 state=absent
+
+- name: Clear ib_logfiles
+  sudo: yes
+  shell: rm -rf /var/lib/mysql/ib_logfile*
+  notify: Restart MySQL

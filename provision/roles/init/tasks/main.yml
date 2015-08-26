@@ -1,0 +1,50 @@
+---
+# package installation
+- name: Import REMI public key
+  sudo: yes
+  rpm_key: state=present key=http://rpms.famillecollet.com/RPM-GPG-KEY-remi
+
+- name: Install REMI
+  sudo: yes
+  yum: state=present name=http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+  register: install_remi_result
+  until: "'failed' not in install_remi_result"
+  retries: 10
+  delay: 3
+
+- name: Update yum packages
+  sudo: yes
+  yum: name=* state=latest
+
+- name: Import EPEL public key
+  sudo: yes
+  rpm_key: state=present key=http://ftp.riken.jp/Linux/fedora/epel/RPM-GPG-KEY-EPEL-6
+
+- name: Install EPEL
+  sudo: yes
+  yum: state=present name=http://ftp.riken.jp/Linux/fedora/epel/6/i386/epel-release-6-8.noarch.rpm
+
+- name: Update yum packages
+  sudo: yes
+  yum: name=* state=latest
+
+- name: Install yum packages
+  sudo: yes
+  yum: name={{ item }} state=installed
+  with_items:
+    - gcc
+    - gcc-c++
+    - make
+    - autoconf
+    - openssl-devel
+    - readline-devel
+    - libyaml-devel
+    - wget
+    - git
+    - libxml2
+    - libxslt
+    - libxml2-devel
+    - libxslt-devel
+    - patch
+    - libselinux-python
+    - ntp

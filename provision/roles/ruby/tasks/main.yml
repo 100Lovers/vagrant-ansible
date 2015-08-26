@@ -1,0 +1,31 @@
+# Install rbenv
+- name: Check out rbenv into ~/.rbenv
+  git: repo=https://github.com/sstephenson/rbenv.git dest={{home_dir}}/.rbenv
+
+- name: Copy bash_profile to ~/.bash_profile
+  copy: src=bash_profile dest={{home_dir}}/.bash_profile owner={{owner}} group={{group}} mode=0644
+
+- name: Check out ruby-build into =/.rbenv/plugins/ruby-build
+  git: repo=https://github.com/sstephenson/ruby-build.git dest={{home_dir}}/.rbenv/plugins/ruby-build
+
+- name: Check if {{ ruby_version }} is installed
+  shell: cd; /bin/bash -lc "rbenv versions | grep {{ ruby_version }} | tr '*' ' ' | sed -e 's/\s\+//' | cut -f1 -d ' '"
+  register: is_installed
+
+- name: Install Ruby {{ ruby_version }}
+  when: is_installed.stdout != ruby_version
+  shell: /bin/bash -lc "CONFIGURE_OPTS=--disable-install-rdoc rbenv install {{ ruby_version }}"
+
+- name: Set global ruby version
+  shell: cd; /bin/bash -lc "rbenv global {{ ruby_version }} && rbenv rehash"
+
+- name: Update Rubygems
+  sudo: yes
+  command: bash -lc "{{home_dir}}/.rbenv/shims/gem update --system"
+    
+- name: Copy gemrc to ~/.gemrc
+  copy: src=gemrc dest={{home_dir}}/.gemrc owner={{owner}} group={{group}} mode=0644
+
+- name: Install Bundler
+  sudo: yes
+  gem: name=bundler executable={{home_dir}}/.rbenv/shims/gem user_install=false

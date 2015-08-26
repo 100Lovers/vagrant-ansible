@@ -1,0 +1,3 @@
+- name: Restart iptables
+  sudo: yes
+  service: name=iptables state=restarted

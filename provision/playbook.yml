@@ -1,0 +1,16 @@
+---
+- hosts: app
+  vars_files:
+    - vars/{{ stage }}.yml
+  vars:
+    ruby_version: 2.1.2
+    home_dir: /home/vagrant
+    owner: vagrant
+    group: vagrant
+  roles:
+    - init
+    - ruby
+    - mysql
+    # - nginx
+    # - unicorn
+    - iptable

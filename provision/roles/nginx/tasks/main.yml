@@ -1,0 +1,46 @@
+# Install nginx
+- name: Copy repo to /etc/yum.repos.d/nginx.repo
+  sudo: yes
+  copy: src=repo dest=/etc/yum.repos.d/nginx.repo owner=root group=root mode=0644
+
+- name: Install Nginx
+  sudo: yes
+  yum: name={{ item }} state=installed enablerepo=remi
+  with_items:
+    - nginx
+
+- name: Create dir "sites-available" for virtual host settings
+  sudo: yes
+  file: path=/etc/nginx/sites-available state=directory
+
+- name: Create dir "sites-enabled" for virtual host settings
+  sudo: yes
+  file: path=/etc/nginx/sites-enabled state=directory
+
+- name: Remove conf.d/*.conf
+  sudo: yes
+  shell: rm -f /etc/nginx/conf.d/*.conf
+
+- name: Copy conf to /etc/nginx/nginx.conf
+  sudo: yes
+  copy: src=conf dest=/etc/nginx/nginx.conf owner=root group=root mode=0644
+  notify: Restart Nginx
+
+- name: Auto running Nginx
+  sudo: yes
+  service: name=nginx state=running enabled=yes
+
+- name: Copy host_default to /etc/nginx/sites-available/default
+  sudo: yes
+  copy: src=host_default dest=/etc/nginx/sites-available/default owner=root group=root mode=0644
+ 
+- name: Copy host_rails_app to /etc/nginx/sites-available/rails_app
+  sudo: yes
+  copy: src=host_rails_app dest=/etc/nginx/sites-available/rails_app owner=root group=root mode=0644
+
+- name: Create symbolic link (sites-available -> sites-enabled)
+  sudo: yes
+  file: src=/etc/nginx/sites-available/{{ item }} dest=/etc/nginx/sites-enabled/{{ item }} state=link
+  with_items:
+    - default
+    - rails_app

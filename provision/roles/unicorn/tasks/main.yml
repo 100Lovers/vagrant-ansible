@@ -1,0 +1,12 @@
+# Install Unicorn
+- name: Install Unicorn
+  sudo: yes
+  gem: name=unicorn-rails executable={{home_dir}}/.rbenv/shims/gem user_install=false
+
+- name: Copy script to /etc/init.d/rails_app
+  sudo: yes
+  copy: src=script dest=/etc/init.d/rails_app owner=root group=root mode=0755
+
+# - name: Auto running Unicorn
+#   sudo: yes
+#   service: name=rails_app state=running enabled=yes

@@ -1,0 +1,5 @@
+[app]
+ec2
+
+[app:vars]
+stage=production
