@@ -16,7 +16,7 @@ Building the vagrant:
 
 After the installation has finished, you can login vagrant: 
 
-    host $ vagrant ssh
+    $ vagrant ssh
 
 ## Environment
 
